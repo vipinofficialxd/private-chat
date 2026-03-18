@@ -1,9 +1,19 @@
-const ws = new WebSocket("ws://localhost:3001");
+const ws = new WebSocket("wss://private-chat-tfqd.onrender.com");
 
-let peer = new RTCPeerConnection();
+let peer = new RTCPeerConnection({
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    }
+  ]
+});
+
 let channel;
 
-// Receive data channel
+// Receive channel
 peer.ondatachannel = (event) => {
   channel = event.channel;
 
@@ -12,7 +22,7 @@ peer.ondatachannel = (event) => {
   };
 };
 
-// ICE candidate send
+// ICE candidates
 peer.onicecandidate = (event) => {
   if (event.candidate) {
     ws.send(JSON.stringify({
@@ -22,7 +32,7 @@ peer.onicecandidate = (event) => {
   }
 };
 
-// Receive signaling data
+// Receive signals
 ws.onmessage = async (message) => {
   const msg = JSON.parse(message.data);
 
@@ -56,7 +66,6 @@ function joinRoom() {
     room: room
   }));
 
-  // Create data channel
   channel = peer.createDataChannel("chat");
 
   channel.onmessage = (e) => {
@@ -66,7 +75,7 @@ function joinRoom() {
   startConnection();
 }
 
-// Start connection (offer)
+// Create offer
 async function startConnection() {
   const offer = await peer.createOffer();
   await peer.setLocalDescription(offer);
