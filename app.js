@@ -1,4 +1,4 @@
-const ws = new WebSocket("wss://private-chat-tfqd.onrender.com");
+const ws = new WebSocket("wss://private-chat-03oe.onrender.com");
 
 let peer = new RTCPeerConnection({
   iceServers: [
